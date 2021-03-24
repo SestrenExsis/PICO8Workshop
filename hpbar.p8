@@ -22,11 +22,23 @@ function _init()
 	}
 	_hpmax=100
 	_hp=flr(rnd(100))
+	_hplst=_hp
 end
 
-function _update()
+function _update60()
 	if btnp(❎) then
 		_hp=flr(rnd(100))
+	end
+	if _hp<_hplst then
+		_hplst-=1
+		if _hplst<_hp then
+			_hplst=_hp
+		end
+	elseif _hp>_hplst then
+		_hplst+=1
+		if _hplst>_hp then
+			_hplst=_hp
+		end
 	end
 end
 
@@ -39,15 +51,31 @@ function _draw()
 		_bar.y+_bar.ht,
 		_bar.plt
 	)
-	local hp=mid(0,_hp/_hpmax,1)
-	print(_hp.." "..hp)
+	local lst=mid(0,_hplst/_hpmax,1)
 	rectfill(
 		_hpbar.x,
 		_hpbar.y,
-		(_hpbar.x+_hpbar.wd)*hp,
+		(_hpbar.x+_hpbar.wd)*lst,
 		_hpbar.y+_hpbar.ht,
 		_hpbar.plt
 	)
+	local hp=mid(0,_hp/_hpmax,1)
+	local plt=10
+	local ofs=1
+	if _hplst<_hp then
+		ofs=0
+		plt=14
+	end
+	if _hplst!=_hp then
+		rectfill(
+			(_hpbar.x+_hpbar.wd)*hp+ofs,
+			_hpbar.y,
+			(_hpbar.x+_hpbar.wd)*lst,
+			_hpbar.y+_hpbar.ht,
+			plt
+		)
+	end
+	print(_hp.." "..hp)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
