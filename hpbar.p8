@@ -5,21 +5,50 @@ __lua__
 -- by sestrenexsis
 -- https://github.com/sestrenexsis/workshop
 
+box={}
+
+function box:new(
+	x,      -- x pos     : number
+	y,      -- y pos     : number
+	wd,     -- width     : number
+	ht,     -- height    : number
+	plt     -- palette   : number
+	)
+	if plt==nil then
+		plt=1
+	end
+	local obj={
+		x=x,
+		y=y,
+		wd=wd,
+		ht=ht,
+		plt=plt,
+	}
+	return setmetatable(
+		obj,{__index=self}
+	)
+end
+
+function box:render(
+	p -- progress    : number
+	)
+	if p==nil then
+		p=1.0
+	end
+	local rgt=self.x+p*self.wd
+	rectfill(
+		self.x,
+		self.y,
+		rgt,
+		self.y+self.ht,
+		self.plt
+	)
+end
+
 function _init()
-	_bar={
-		x=1,
-		y=8,
-		wd=102,
-		ht=6,
-		plt=1,
-	}
-	_hpbar={
-		x=2,
-		y=9,
-		wd=100,
-		ht=4,
-		plt=8,
-	}
+	_bar=box:new(1,8,102,6,1)
+	_hpbar=box:new(2,9,100,4,2)
+	_hplstbar=box:new(2,9,100,4,8)
 	_hpmax=100
 	_hp=flr(rnd(100))
 	_hplst=_hp
@@ -44,38 +73,25 @@ end
 
 function _draw()
 	cls()
-	rectfill(
-		_bar.x,
-		_bar.y,
-		_bar.x+_bar.wd,
-		_bar.y+_bar.ht,
-		_bar.plt
-	)
-	local lst=mid(0,_hplst/_hpmax,1)
-	rectfill(
-		_hpbar.x,
-		_hpbar.y,
-		(_hpbar.x+_hpbar.wd)*lst,
-		_hpbar.y+_hpbar.ht,
-		_hpbar.plt
-	)
-	local hp=mid(0,_hp/_hpmax,1)
-	local plt=10
-	local ofs=1
+	_bar:render()
+	local p1=mid(0,_hp/_hpmax,1)
+	local p2=mid(0,_hplst/_hpmax,1)
 	if _hplst<_hp then
-		ofs=0
-		plt=14
+		_hplstbar.plt=8
+		_hpbar.plt=14
+		_hpbar:render(p1)
+		_hplstbar:render(p2)
+	elseif _hplst>_hp then
+		_hpbar.plt=8
+		_hplstbar.plt=2
+		_hplstbar:render(p2)
+		_hpbar:render(p1)
+	else
+		_hpbar.plt=8
+		_hplstbar.plt=8
+		_hpbar:render(p1)
 	end
-	if _hplst!=_hp then
-		rectfill(
-			(_hpbar.x+_hpbar.wd)*hp+ofs,
-			_hpbar.y,
-			(_hpbar.x+_hpbar.wd)*lst,
-			_hpbar.y+_hpbar.ht,
-			plt
-		)
-	end
-	print(_hp.." "..hp)
+	print(_hp.." "..p1.." "..p2)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
